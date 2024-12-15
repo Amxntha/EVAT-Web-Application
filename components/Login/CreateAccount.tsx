@@ -1,18 +1,101 @@
 import React from 'react';
 import {
-	View,
-	Text,
-	Image,
-	TextInput,
-	TouchableOpacity,
-	StyleSheet
+  View,
+  Text,
+  Image,
+  TextInput,
+  TouchableOpacity,
+  StyleSheet,
+  Alert
 } from 'react-native';
-
+import { useForm, Controller } from 'react-hook-form';
+import { userRegister } from '../apiService';
+import { AxiosError } from 'axios';
+interface RegisterFormValues {
+  fullname: string;
+  email: string;
+  password: string;
+}
 const CreateAccount: React.FC<{ navigation: any }> = ({ navigation }): React.ReactElement => {
-	const handleNext = () => {
-    navigation.navigate('AddCard');
-	};
-	
+  const [fullname, setFullname] = React.useState('');
+  const [email, setEmail] = React.useState('');
+  const [pwd, setPwd] = React.useState('');
+  const { control, handleSubmit } = useForm<RegisterFormValues>();
+
+  const handleNext = async (data: RegisterFormValues) => {
+    if (email == "") {
+      Alert.alert(
+        'Error',
+        'Email is Required',
+        [
+        ],
+        {
+          cancelable: true,
+        },
+      );
+      return false
+    }
+    if (pwd == "") {
+      Alert.alert(
+        'Error',
+        'Password is Required',
+        [
+        ],
+        {
+          cancelable: true,
+        },
+      );
+      return false
+    }
+    try {
+      const response = await userRegister({
+        // email: "example4@deakin.edu.au",
+        // password: "password123"
+        fullname: fullname,
+        email: email,
+        password: pwd
+      });
+      if (response?.data?.email) {
+        console.log('Register Successful:', response);
+        Alert.alert('Sign up Success', '', [],
+          {
+            cancelable: true,
+            onDismiss: () => {
+              navigation.navigate('Map');
+            }
+          },
+        );
+      } else {
+
+        console.log('Register error:', response);
+      }
+
+
+
+
+      // Navigate or store token
+    } catch (error) {
+      if (error instanceof AxiosError && error.response && error.response.data) {
+        console.error('Register Failed:', error.response.data);
+        Alert.alert(
+          'Error',
+          (error?.response?.data?.message || 'Network Error'),
+          [
+          ],
+          {
+            cancelable: true,
+          },
+        );
+      } else if (error instanceof Error) {
+        console.error('Register Failed:', error.message);
+      } else {
+        console.error('Register Failed:', error);
+      }
+    }
+  };
+
+
+
   return (
     <View style={styles.createAccount}>
       <View style={styles.he100} />
@@ -20,16 +103,23 @@ const CreateAccount: React.FC<{ navigation: any }> = ({ navigation }): React.Rea
       <Text style={styles.title}>Create Account</Text>
       <View style={styles.inpBox}>
         <View style={styles.inp}>
+          <Image source={require('../../assets/login/b4.png')} style={styles.icon} />
+          <TextInput keyboardType="default" value={fullname} maxLength={50}
+            onChangeText={setFullname} placeholder="FullName" style={styles.input} />
+        </View>
+        <View style={styles.inp}>
           <Image source={require('../../assets/login/b2.png')} style={styles.icon} />
-          <TextInput placeholder="Email" style={styles.input} />
+          <TextInput keyboardType="default" value={email} maxLength={50}
+            onChangeText={setEmail} placeholder="Email" style={styles.input} />
         </View>
         <View style={styles.inp}>
           <Image source={require('../../assets/login/b3.png')} style={styles.icon} />
-          <TextInput placeholder="Password" style={styles.input} secureTextEntry />
+          <TextInput keyboardType="default" value={pwd} maxLength={50}
+            onChangeText={setPwd} placeholder="Password" style={styles.input} secureTextEntry />
         </View>
       </View>
       <TouchableOpacity style={styles.next} onPress={handleNext}>
-        <Text style={styles.nextText}>Next</Text>
+        <Text style={styles.nextText}>Sign Up</Text>
       </TouchableOpacity>
       <Text style={styles.text}>Privacy Policy</Text>
       <Text style={styles.text}>Terms & Conditions</Text>
@@ -59,6 +149,7 @@ const styles = StyleSheet.create({
     fontSize: 50,
     textAlign: 'center',
     fontFamily: 'Inknut Antiqua',
+    color: '#2293B7',
     marginVertical: 20,
   },
   inpBox: {
@@ -75,9 +166,11 @@ const styles = StyleSheet.create({
     borderColor: '#ccc',
   },
   icon: {
-    width: 40,
+    width: 36,
     height: 30,
+    marginTop: 2,
     marginRight: 10,
+    marginLeft: 4,
   },
   input: {
     flex: 1,
@@ -86,7 +179,6 @@ const styles = StyleSheet.create({
     backgroundColor: '#cff9ff',
     paddingLeft: 10,
     borderWidth: 0,
-    outlineStyle: 'none',
   },
   next: {
     backgroundColor: '#2293B7',

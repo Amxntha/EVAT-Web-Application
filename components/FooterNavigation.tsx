@@ -1,7 +1,13 @@
+/*
+ * @Date: 2024-12-07 11:58:50
+ * @LastEditTime: 2024-12-14 20:48:28
+ * @FilePath: /fbdemo-reactnative/components/FooterNavigation.tsx
+ */
 import React from 'react';
 import {View, StyleSheet, TouchableOpacity} from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import {useNavigation} from '@react-navigation/native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const FooterNavigation = () => {
   const navigation = useNavigation<any>();
@@ -18,7 +24,10 @@ const FooterNavigation = () => {
 
           <TouchableOpacity
             style={styles.navItem}
-            onPress={() => navigation.navigate('Login')}>
+            onPress={() => {
+              // AsyncStorage.removeItem('userToken')
+              navigation.navigate('Login')
+            }}>
             <Icon name="login" size={25} color="#707070" />
           </TouchableOpacity>
 
